@@ -40,6 +40,8 @@
 @interface AMPPreviewController () <QLPreviewControllerDataSource>
 
 @property (nonatomic, strong) id <QLPreviewItem> previewItem;
+@property (nonatomic, strong) UINavigationBar *qlNavigationBar;
+@property (nonatomic, strong) UINavigationBar *overlayNavigationBar;
 
 @end
 
@@ -79,6 +81,30 @@
     return self;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    self.qlNavigationBar = [self getNavigationBarFromView:self.view];
+    
+    self.overlayNavigationBar = [[UINavigationBar alloc] initWithFrame:[self navigationBarFrameForOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
+    self.overlayNavigationBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    self.overlayNavigationBar.translucent = NO;
+    [self.view addSubview:self.overlayNavigationBar];
+    
+    NSAssert(self.qlNavigationBar, @"could not find navigation bar");
+    
+    if (self.qlNavigationBar) {
+        [self.qlNavigationBar addObserver:self forKeyPath:@"hidden" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:nil];
+    }
+    
+    UINavigationItem *item = [[UINavigationItem alloc] initWithTitle:self.title];
+    UIBarButtonItem *doneButton  = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButtonTapped:)];
+    item.rightBarButtonItem = doneButton;
+    item.hidesBackButton = YES;
+    
+    [self.overlayNavigationBar pushNavigationItem:item animated:NO];
+}
+
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
@@ -101,11 +127,30 @@
     }
 }
 
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
+    
+    if (self.qlNavigationBar) {
+        [self.qlNavigationBar removeObserver:self forKeyPath:@"hidden"];
+    }
+}
+
+- (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    
+    self.overlayNavigationBar.frame = [self navigationBarFrameForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+}
+
 - (NSURL *)destinationPathForURL:(NSURL *)url {
     NSURL *documentsDirectoryPath = [NSURL fileURLWithPath:[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject]];
     NSString *name = [url lastPathComponent];
     NSURL *path = [documentsDirectoryPath URLByAppendingPathComponent:name];
     return path;
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    self.overlayNavigationBar.hidden = self.qlNavigationBar.isHidden;
 }
 
 #pragma mark -
@@ -151,6 +196,47 @@
 
 - (id <QLPreviewItem>)previewController:(QLPreviewController *)controller previewItemAtIndex:(NSInteger)index {
     return self.previewItem;
+}
+
+#pragma mark - Actions
+
+- (void)actionButtonTapped:(id)sender
+{
+    if (self.delegate && [self.delegate respondsToSelector:@selector(actionButtonTapped:)]) {
+        [self.delegate performSelector:@selector(actionButtonTapped:) withObject:sender];
+        return;
+    }
+}
+
+- (void)doneButtonTapped:(id)sender
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - Utils
+
+- (UINavigationBar*)getNavigationBarFromView:(UIView *)view {
+    for (UIView *v in view.subviews) {
+        if ([v isKindOfClass:[UINavigationBar class]]) {
+            return (UINavigationBar *)v;
+        } else {
+            UINavigationBar *navigationBar = [self getNavigationBarFromView:v];
+            if (navigationBar) {
+                return navigationBar;
+            }
+        }
+    }
+    return nil;
+}
+
+- (CGRect)navigationBarFrameForOrientation:(UIInterfaceOrientation)orientation {
+    return CGRectMake(0.0f, 0.0f, self.view.bounds.size.width, [self navigationBarHeight:orientation]);
+}
+
+- (CGFloat)navigationBarHeight:(UIInterfaceOrientation)orientation {
+    if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone && UIInterfaceOrientationIsLandscape(orientation)) return 52.0f;
+    
+    return 44.0f;
 }
 
 @end

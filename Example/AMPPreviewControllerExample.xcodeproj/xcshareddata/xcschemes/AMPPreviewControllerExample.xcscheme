@@ -28,6 +28,16 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FA3437DE18B4E16700AFC942"
+               BuildableName = "AMPPreviewControllerExampleTests.xctest"
+               BlueprintName = "AMPPreviewControllerExampleTests"
+               ReferencedContainer = "container:AMPPreviewControllerExample.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

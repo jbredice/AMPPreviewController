@@ -84,6 +84,14 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
+    [self.navigationController setToolbarHidden:NO animated:animated];
+    
+    self.navigationController.toolbar.barStyle = self.navigationController.navigationBar.barStyle;
+    self.navigationController.toolbar.tintColor = self.navigationController.navigationBar.tintColor;
+    
+    UIBarButtonItem *actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonTapped:)];
+    self.toolbarItems = @[actionButton];
+    
     self.qlNavigationBar = [self getNavigationBarFromView:self.view];
     
     self.overlayNavigationBar = [[UINavigationBar alloc] initWithFrame:[self navigationBarFrameForOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
@@ -236,7 +244,7 @@
 - (CGFloat)navigationBarHeight:(UIInterfaceOrientation)orientation {
     if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone && UIInterfaceOrientationIsLandscape(orientation)) return 52.0f;
     
-    return 44.0f;
+    return 64.0f;
 }
 
 @end

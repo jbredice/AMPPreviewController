@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name             = 'AMPPreviewController'
-  s.version          = '0.6'
+  s.version          = '0.6.1'
   s.summary          = 'AMPPreviewController is a subclass of QLPreviewController that allows you to preview remote documents.'
   s.homepage         = "https://github.com/alexito4/AMPPreviewController"
   s.license          = 'MIT'

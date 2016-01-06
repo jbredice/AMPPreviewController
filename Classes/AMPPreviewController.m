@@ -40,8 +40,10 @@
 @interface AMPPreviewController () <QLPreviewControllerDataSource>
 
 @property (nonatomic, strong) id <QLPreviewItem> previewItem;
+@property (nonatomic, strong) NSString *navBarTitle;
 @property (nonatomic, strong) UINavigationBar *qlNavigationBar;
 @property (nonatomic, strong) UINavigationBar *overlayNavigationBar;
+@property (nonatomic, strong) UIToolbar *overlayToolbar;
 
 @end
 
@@ -51,6 +53,7 @@
     self = [self init];
     if (self) {
         _previewItem = item;
+        self.navBarTitle = _previewItem.previewItemTitle;
     }
     return self;
 }
@@ -84,19 +87,23 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    [self.navigationController setToolbarHidden:NO animated:animated];
-    
-    self.navigationController.toolbar.barStyle = self.navigationController.navigationBar.barStyle;
-    self.navigationController.toolbar.tintColor = self.navigationController.navigationBar.tintColor;
-    
-    UIBarButtonItem *actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonTapped:)];
-    self.toolbarItems = @[actionButton];
-    
     self.qlNavigationBar = [self getNavigationBarFromView:self.view];
     
     self.overlayNavigationBar = [[UINavigationBar alloc] initWithFrame:[self navigationBarFrameForOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
     self.overlayNavigationBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     self.overlayNavigationBar.translucent = NO;
+    [self.view addSubview:self.overlayNavigationBar];
+    
+    CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+    CGFloat screenHeight = [UIScreen mainScreen].bounds.size.height;
+    
+    self.overlayToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, screenHeight - 44.0, screenWidth, 44.0)];
+    self.overlayToolbar.barStyle = self.overlayNavigationBar.barStyle;
+    self.overlayToolbar.tintColor = self.overlayNavigationBar.tintColor;
+    
+    UIBarButtonItem *actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonTapped:)];
+    self.toolbarItems = @[actionButton];
+    
     [self.view addSubview:self.overlayNavigationBar];
     
     NSAssert(self.qlNavigationBar, @"could not find navigation bar");
@@ -105,7 +112,7 @@
         [self.qlNavigationBar addObserver:self forKeyPath:@"hidden" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:nil];
     }
     
-    UINavigationItem *item = [[UINavigationItem alloc] initWithTitle:self.title];
+    UINavigationItem *item = [[UINavigationItem alloc] initWithTitle:self.navBarTitle];
     UIBarButtonItem *doneButton  = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButtonTapped:)];
     item.rightBarButtonItem = doneButton;
     item.hidesBackButton = YES;

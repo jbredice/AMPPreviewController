@@ -87,6 +87,9 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
+    CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+    CGFloat screenHeight = [UIScreen mainScreen].bounds.size.height;
+    
     self.qlNavigationBar = [self getNavigationBarFromView:self.view];
     
     self.overlayNavigationBar = [[UINavigationBar alloc] initWithFrame:[self navigationBarFrameForOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
@@ -94,17 +97,14 @@
     self.overlayNavigationBar.translucent = NO;
     [self.view addSubview:self.overlayNavigationBar];
     
-    CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
-    CGFloat screenHeight = [UIScreen mainScreen].bounds.size.height;
-    
     self.overlayToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, screenHeight - 44.0, screenWidth, 44.0)];
     self.overlayToolbar.barStyle = self.overlayNavigationBar.barStyle;
     self.overlayToolbar.tintColor = self.overlayNavigationBar.tintColor;
+    [self.view addSubview:self.overlayToolbar];
     
+    UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     UIBarButtonItem *actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonTapped:)];
-    self.toolbarItems = @[actionButton];
-    
-    [self.view addSubview:self.overlayNavigationBar];
+    self.overlayToolbar.items = @[flexibleSpace, actionButton];
     
     NSAssert(self.qlNavigationBar, @"could not find navigation bar");
     
@@ -154,7 +154,11 @@
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     
+    CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+    CGFloat screenHeight = [UIScreen mainScreen].bounds.size.height;
+    
     self.overlayNavigationBar.frame = [self navigationBarFrameForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    self.overlayToolbar.frame = CGRectMake(0, screenHeight - 44.0, screenWidth, 44.0);
 }
 
 - (NSURL *)destinationPathForURL:(NSURL *)url {
@@ -166,6 +170,7 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     self.overlayNavigationBar.hidden = self.qlNavigationBar.isHidden;
+    self.overlayToolbar.hidden = self.qlNavigationBar.isHidden;
 }
 
 #pragma mark -
@@ -185,7 +190,7 @@
         return [self destinationPathForURL:URL];
     } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
         if (!error) {
-//            NSLog(@"File downloaded to: %@", filePath);
+            //            NSLog(@"File downloaded to: %@", filePath);
             
             if ([self.previewItem isKindOfClass:[AMPPreviewObject class]]) {
                 [(AMPPreviewObject *)self.previewItem setPreviewItemTitle:[response suggestedFilename]];

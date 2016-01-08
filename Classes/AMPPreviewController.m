@@ -163,7 +163,7 @@
 
 - (NSURL *)destinationPathForURL:(NSURL *)url {
     NSURL *documentsDirectoryPath = [NSURL fileURLWithPath:[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject]];
-    NSString *name = [url lastPathComponent];
+    NSString *name = (_previewItem.previewItemTitle) ? _previewItem.previewItemTitle : [url lastPathComponent];
     NSURL *path = [documentsDirectoryPath URLByAppendingPathComponent:name];
     return path;
 }
@@ -223,7 +223,7 @@
 - (void)actionButtonTapped:(id)sender
 {
     if (self.delegate && [self.delegate respondsToSelector:@selector(actionButtonTapped:)]) {
-        [self.delegate performSelector:@selector(actionButtonTapped:) withObject:sender];
+        [self.delegate performSelector:@selector(actionButtonTapped:) withObject:_previewItem.previewItemURL];
         return;
     }
 }

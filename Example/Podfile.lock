@@ -20,7 +20,7 @@ PODS:
   - AFNetworking/UIKit (2.6.3):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
-  - AMPPreviewController (0.4):
+  - AMPPreviewController (0.7.0):
     - AFNetworking (~> 2.2)
 
 DEPENDENCIES:
@@ -32,6 +32,6 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
-  AMPPreviewController: 17fd43dcfd5476536d94b4a40b3c3990c7bbf7b6
+  AMPPreviewController: 91e8dbc4d16f011fd86ff62dbcc0dd4832587bae
 
 COCOAPODS: 0.39.0

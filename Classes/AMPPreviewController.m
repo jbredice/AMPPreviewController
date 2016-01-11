@@ -80,6 +80,7 @@
         item.previewItemTitle = title;
         item.remoteUrl = remoteUrl;
         _previewItem = item;
+        self.navBarTitle = _previewItem.previewItemTitle;
     }
     return self;
 }
